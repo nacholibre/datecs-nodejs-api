@@ -25,7 +25,7 @@ const asyncMiddleware = fn => (req, res, next) => {
     .catch(function(e) {
         //release API lock if any!!
         lock.release();
-        console.log(e);
+        //console.log(e);
         res.status(503);
         res.send({status: 'execution_error'});
     });
@@ -94,7 +94,7 @@ app.post('/createSale', asyncMiddleware(async (req, res) => {
         stornoData: stornoData,
     };
 
-    console.log(params);
+    //console.log(params);
 
     let saleData = await api.createSale(params);
 
@@ -125,6 +125,44 @@ app.get('/diagnostic_info', asyncMiddleware(async (req, res) => {
     //    res.status(503);
     //    res.send({msg: 'Error'});
     //});
+}));
+
+app.get('/run_daily_financial_report', asyncMiddleware(async (req, res) => {
+    var withNulling = true;
+
+    if (req.body.withNulling == '0') {
+        withNulling = false;
+    }
+
+    console.log('Run daily financial report');
+    console.log('With nulling: ' + withNulling);
+
+    let data = await api.runDailyFinancialReport(withNulling);
+
+    res.send({
+        'status': 'ok',
+        'data': data,
+    });
+}));
+
+app.get('/run_period_financial_report', asyncMiddleware(async (req, res) => {
+    var start = req.body.start;
+    var end = null;
+
+    if (req.body.end) {
+        end = req.body.end;
+    }
+
+    console.log('Run periodic financial report');
+    console.log('Start: ' + start);
+    console.log('End: ' + end);
+
+    let data = await api.runFinancialReportByDate(start, end);
+
+    res.send({
+        'status': 'ok',
+        'data': data,
+    });
 }));
 
 //app.post('/old.createSale', function(req, res) {

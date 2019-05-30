@@ -300,7 +300,7 @@ class API {
             'memory': null,
         };
 
-        console.log(fiskalenBonCommands);
+        //console.log(fiskalenBonCommands);
 
         await self.lock.acquire();
 
@@ -347,12 +347,29 @@ class API {
         });
     }
 
-    dailyFinancialReport() {
+    async runDailyFinancialReport(withNulling=true) {
         //Option Незадължителен параметър, управляващ вида на генерирания отчет:
         //‘0’ Отпечатва се Z-отчет. Разпечатката завършва с надпис “ФИСКАЛЕН БОН”.
         //‘2’ Прави се дневен финансов отчет без нулиране (т. е. не се извършва запис във ФП и нулиране на
         //регистрите). Разпечатката завършва с текст “СЛУЖЕБЕН БОН”.
-        return self.serialWrapper.runCommand(69, '0').then(function(res) {
+        var data = '2';
+        if (withNulling) {
+            data = '0';
+        }
+
+        return self.serialWrapper.runCommand(69, data).then(function(res) {
+        });
+    }
+
+    async runFinancialReportByDate(start, end) {
+        if (start && !end) {
+            var data = start;
+        } else if (start && end) {
+            var data = start + ',' + end;
+        }
+
+        return self.serialWrapper.runCommand(94, data).then(function(res) {
+            //console.log(res);
         });
     }
 
